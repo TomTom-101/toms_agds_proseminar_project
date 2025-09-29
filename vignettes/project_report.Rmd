@@ -1,0 +1,37 @@
+---
+title: "The Best Project Ever"
+author: "Thomas Jucker"
+date: "18 December 2025"
+bibliography: references.bib  
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+# global options for "knitting"
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(lubridate)
+library(readr)
+library(ggplot2)
+library(gganimate)
+library(gifski)
+library(here)
+library(readr)
+
+source(here("R/analyse_modobs2.R"))
+```
+
+## References

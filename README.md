@@ -4,7 +4,8 @@
 
 Ideas: 
 - Correlation of weather variables and paragliding cross country flying potential
-- 
+- development of snow coverage in the alps
+- Mobility Data
 
 Contains data and code for creating:
 

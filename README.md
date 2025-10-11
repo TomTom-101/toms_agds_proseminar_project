@@ -5,7 +5,7 @@
 Ideas: 
 - Correlation of weather variables and paragliding cross country flying potential
 - development of snow coverage in the alps
-- Mobility Data
+- Mobility Data: Ein und Aussteiger pro Station CH von 2018, 2022 bis 2024
 
 Contains data and code for creating:
 

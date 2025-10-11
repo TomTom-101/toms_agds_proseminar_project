@@ -51,6 +51,10 @@ The following data were obtained from external sources and are contained in this
 └── R/                       <- R functions used in the project, contains one function per script
 ```
 
+## How to reproduce the analysis
+
+## Results
+
 ## Dependencies
 
 Install all required R libraries by:

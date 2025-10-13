@@ -1,5 +1,5 @@
 ---
-title: "The Best Project Ever"
+title: "Tracking Delays: Analysing the Impact of Weather and Seasonal Factors on Swiss Railway Punctuality"
 author: "Thomas Jucker"
 date: "18 December 2025"
 bibliography: references.bib  
@@ -9,6 +9,9 @@ output:
     toc_depth: 3
     toc_float: true
 ---
+
+delayed on arrival only! because delayed at departure might be due to other factors, e.g. passengers
+
 
 ```{r setup, include=FALSE}
 # global options for "knitting"

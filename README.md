@@ -1,11 +1,16 @@
-# The Best Project Ever
+# Tracking Delays:
+Analysing the Impact of Weather and Seasonal Factors on Swiss Railway Punctuality
 
 ## Project overview
 
-Ideas: 
-- Correlation of weather variables and paragliding cross country flying potential
-- development of snow coverage in the alps
-- Mobility Data: Ein und Aussteiger pro Station CH von 2018, 2022 bis 2024
+This project investigates how environmental factors—precipitation, temperature, 
+and vegetation—affect train punctuality across the Swiss railway network. Using 
+open data on train operations and weather, the project will derive delay 
+metrics, map them geographically, and analyse correlations through statistical 
+methods. An existing script for punctuality calculation will be adapted for 
+national data. Main risks include difficulties in adapting the aforementioned 
+method and spatial referencing of punctuality, with contingency plans involving 
+expert consultation and simplified mapping.
 
 Contains data and code for creating:
 
@@ -34,7 +39,7 @@ The following data were obtained from external sources and are contained in this
 ├── README.md                <- The top-level README includes instructions to use this repository
 |                               and the project proposal for the Proseminar
 │
-├── inaug_demo.Rproj.        <- R project file
+├── toms_agds_proseminar_project.Rproj.        <- R project file
 | 
 ├── .gitignore               <- file indicating which files should be ignored when pushing
 |

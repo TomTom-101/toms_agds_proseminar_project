@@ -10,12 +10,17 @@ library(sf)
 library(tidyverse)
 
 
-# Step 1: Read the CSV (unzipping on the fly)
-url <- "https://data.opentransportdata.swiss/dataset/c8ed76a6-2960-4529-af6e-069a72c47268/resource/b17ad6e0-cfe7-482c-962f-3ae8cbb33fc2/download/actual_date-swiss-only-service_point-2025-10-20.csv.zip"
+# Read file
+stops <- read_delim("https://raw.githubusercontent.com/TomTom-101/toms_agds_proseminar_project/refs/heads/main/data/stop-points-today.csv", delim = ";")
 
-# Read directly from zip
-temp <- tempfile()
-download.file(url, temp)
-csv_file <- unzip(temp, list = TRUE)$Name[1]  # assumes first file in zip
-stops <- read_delim(unzip(temp, files = csv_file), delim = ";")
 
+# Matching
+stops_selected <- stops %>%
+  select(stop_point_id, latitude, longitude)
+
+# Join with your train data, keeping only the selected columns
+train_data_with_coords <- train_data %>%
+  left_join(stop_coords_selected, by = c("stop_id" = "stop_point_id"))
+
+# Check the result
+head(train_data_with_coords)

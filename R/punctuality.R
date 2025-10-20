@@ -7,7 +7,7 @@ library(tidyr)
 library(lubridate)
 library(readr)
 
-# Daten einlesen aus Onlinequelle
+# Read data from online source
 ist_2025_10_11 <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/42fafc47-199d-4626-ae1e-edb34abdc382/download/2025-10-11_istdaten.csv'
 ist_2025_10_11 <- read.csv(ist_2025_10_11, header = TRUE, sep = ';', stringsAsFactors = FALSE)
 

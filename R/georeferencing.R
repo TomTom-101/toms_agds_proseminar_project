@@ -11,18 +11,19 @@ library(tidyverse)
 
 
 # Read file
-stops <- read_delim("https://raw.githubusercontent.com/TomTom-101/toms_agds_proseminar_project/refs/heads/main/data/linie-mit-betriebspunkten.csv", delim = ";")
+stops <- read_delim("https://raw.githubusercontent.com/TomTom-101/toms_agds_proseminar_project/refs/heads/main/data/stop-points-today.csv", delim = ";")
 
-# Convert BPUIC to character
-punctuality_2025_10_11 <- punctuality_2025_10_11 %>%
-  mutate(BPUIC = str_trim(as.character(BPUIC)))
+# Rename the column
+stops <- stops %>%
+  rename(BPUIC = `DiDok-Code`)
 
+# Convert to character and trim
 stops <- stops %>%
   mutate(BPUIC = str_trim(as.character(BPUIC)))
 
-# Filter
+# Select relevant columns
 stops_selected <- stops %>%
-  select(BPUIC, Geoposition)
+  select(BPUIC, "E-Koordinate", "N-Koordinate", "Link auf Karte")
 
 # Join with punctuality, keeping only the selected columns
 punctuality_2025_10_11_geo <- punctuality_2025_10_11 %>%

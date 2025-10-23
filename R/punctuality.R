@@ -11,8 +11,12 @@ library(readr)
 ist_2025_10_11 <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/42fafc47-199d-4626-ae1e-edb34abdc382/download/2025-10-11_istdaten.csv'
 ist_2025_10_11 <- read.csv(ist_2025_10_11, header = TRUE, sep = ';', stringsAsFactors = FALSE)
 
-# Calculate punctuality
+# Create new dataframe with only train data
 punctuality_2025_10_11 <- ist_2025_10_11%>%
+  filter(PRODUKT_ID == "Zug")
+
+# Calculate punctuality
+punctuality_2025_10_11 <- punctuality_2025_10_11%>%
   # convert times
   mutate(
     ANKUNFTSZEIT = dmy_hm(ANKUNFTSZEIT),

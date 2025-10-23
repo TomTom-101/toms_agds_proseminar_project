@@ -1,5 +1,5 @@
 # This script references names of stops to according geographical coordinates
-# The data is available under https://data.opentransportdata.swiss/dataset/service-points-actual-date/resource_permalink/actual_date-swiss-only-service_point-2025-10-20.csv.zip
+# The data is available under https://data.oev-info.ch/explore/dataset/stop-points-today/information/?disjunctive.cantonabbreviation&disjunctive.localityname&disjunctive.businessorganisation&disjunctive.businessorganisationnumber&disjunctive.businessorganisationabbreviationde&disjunctive.businessorganisationdescriptionde&disjunctive.status&disjunctive.verkehrsmittel&disjunctive.isocountrycode
 
 # Load packages
 library(dplyr)
@@ -8,6 +8,7 @@ library(lubridate)
 library(readr)
 library(sf)
 library(tidyverse)
+library(ggplot2)   
 
 
 # Read file

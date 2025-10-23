@@ -17,11 +17,9 @@ punctuality_2025_10_11 <- ist_2025_10_11%>%
   filter(PRODUKT_ID == "Zug")
 
 # Filter for only swiss trains by BPUIC Code 
-# Basic format: UIC country code (2-digit) e.g. 85,  UIC stop code (5-digit): e.g. 03000, stop code (optional): e.g. 02
+# Basic format: UIC country code (2-digit) e.g. 85,  UIC stop code (5-digit): e.g. 03000, stop code (optional): e.g. 02. Gives: 850300002
 
-gives: 850300002
-
-punctuality_2025_10_11_sw <- punctuality_2025_10_11 %>%
+punctuality_2025_10_11 <- punctuality_2025_10_11 %>%
   filter(str_starts(BPUIC, "85"))
 
 

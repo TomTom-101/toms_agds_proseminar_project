@@ -30,7 +30,9 @@ punctuality_2025_10_11_geo <- punctuality_2025_10_11 %>%
   full_join(stops_selected, by = "BPUIC", relationship = "many-to-many")
 
 
-head(punctuality_2025_10_11_geo)
-
+# Check for missing coordinates. Should be 0
+punctuality_2025_10_11_geo %>%
+  summarise(n_missing_E = sum(is.na(`E-Koordinate`)),
+            n_missing_N = sum(is.na(`N-Koordinate`)))
 
 

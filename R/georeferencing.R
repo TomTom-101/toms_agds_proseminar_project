@@ -11,16 +11,20 @@ library(tidyverse)
 
 
 # Read file
-stops <- read_delim("https://raw.githubusercontent.com/TomTom-101/toms_agds_proseminar_project/refs/heads/main/data/stop-points-today.csv", delim = ";")
+stops <- read_delim("https://raw.githubusercontent.com/TomTom-101/toms_agds_proseminar_project/refs/heads/main/data/linie-mit-betriebspunkten.csv", delim = ";")
 
+# Convert BPUIC to character
+stops_selected <- stops %>%
+  select(BPUIC, Geoposition) %>%
+  mutate(BPUIC = as.character(BPUIC))
 
 # Matching
 stops_selected <- stops %>%
-  select(stop_point_id, latitude, longitude)
+  select(BPUIC, Geoposition)
 
-# Join with your train data, keeping only the selected columns
-train_data_with_coords <- train_data %>%
-  left_join(stop_coords_selected, by = c("stop_id" = "stop_point_id"))
+# Join with punctuality, keeping only the selected columns
+punctuality_2025_10_11_geo <- punctuality_2025_10_11 %>%
+  left_join(stops_selected, by = c("BPUIC" = "BPUIC"))
 
 # Check the result
-head(train_data_with_coords)
+head(punctuality_2025_10_11_geo)

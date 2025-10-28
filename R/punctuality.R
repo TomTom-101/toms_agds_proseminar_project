@@ -51,7 +51,8 @@ punct_summary <- punctuality_2025_10_11 %>%
     total_trains = n(),
     delayed_trains = sum(punct_cat == "delayed", na.rm = TRUE),
     punctual_trains = sum(punct_cat == "punctual", na.rm = TRUE),
-    punctuality_rate = round(100 * punctual_trains / total_trains, 2)
+    punctuality_rate = round(100 * punctual_trains / total_trains, 2),
+    punctuality_mean_min = mean(diff_arr, na.rm = TRUE)
   )
 
 print(punct_summary)

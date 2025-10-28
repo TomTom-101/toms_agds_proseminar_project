@@ -9,7 +9,8 @@ library(tidyverse)
 library(ggspatial)
 library(viridis)
 library(sf)
-library(rosm) 
+library(rosm)
+library(leaflet)
 
 # Convert coordinates to numeric
 punctuality_2025_10_11_geo <- punctuality_2025_10_11_geo %>%
@@ -47,34 +48,22 @@ mean_delay_sf <- st_as_sf(
 # Reproject to WGS84 (required for annotation_map_tile)
 mean_delay_sf_wgs <- st_transform(mean_delay_sf, crs = 4326)
 
-# --- 3. Plot map ---
-
-library(ggplot2)
-library(ggspatial)
-library(viridis)
-library(sf)
-library(rosm) 
-
-
-
-ggplot() +
-  # Grey/light basemap
-  annotation_map_tile(type = "cartolight") +  
-  # Plot punctuality points / mean delay
-  geom_sf(data = mean_delay_sf_wgs, aes(color = mean_delay_min), size = 2, alpha = 0.8) +
-  scale_color_viridis_c(
-    option = "plasma",
-    name = "Mean Delay (min)",
-    na.value = "grey80"
-  ) +
-  labs(
-    title = "Mean Train Delay per Stop (2025-10-11)",
-    subtitle = "Computed from actual vs planned arrival times",
-    caption = "Data: opentransportdata.swiss / stop-points-today"
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = "right",
-    plot.title = element_text(size = 14, face = "bold"),
-    plot.subtitle = element_text(size = 10)
+# Create Leaflet map
+leaflet(mean_delay_sf_wgs) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%  # light grey basemap
+  addCircleMarkers(
+    radius = 4,
+    color = ~viridis::viridis(100, option = "plasma")[cut(mean_delay_min, breaks = 100)],
+    stroke = FALSE,
+    fillOpacity = 0.8,
+    popup = ~paste0(
+      "<b>", HALTESTELLEN_NAME, "</b><br>",
+      "Mean delay: ", round(mean_delay_min, 1), " min"
+    )
+  ) %>%
+  addLegend(
+    position = "bottomright",
+    pal = colorNumeric(palette = "plasma", domain = mean_delay_sf_wgs$mean_delay_min),
+    values = mean_delay_sf_wgs$mean_delay_min,
+    title = "Mean Delay (min)"
   )

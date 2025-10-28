@@ -24,7 +24,7 @@ stops <- stops %>%
 
 # Select relevant columns
 stops_selected <- stops %>%
-  select(BPUIC, "E-Koordinate", "N-Koordinate", "Link auf Karte")
+  select(BPUIC, 'E-Koordinate', 'N-Koordinate', 'Link auf Karte')
 
 # Join with punctuality, keeping only the selected columns
 punctuality_2025_10_11_geo <- punctuality_2025_10_11 %>%

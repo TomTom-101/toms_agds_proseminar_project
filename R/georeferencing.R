@@ -28,7 +28,7 @@ stops_selected <- stops %>%
 
 # Join with punctuality, keeping only the selected columns
 punctuality_2025_10_11_geo <- punctuality_2025_10_11 %>%
-  full_join(stops_selected, by = "BPUIC", relationship = "many-to-many")
+  inner_join(stops_selected, by = "BPUIC")
 
 
 # Check for missing coordinates. Should be 0

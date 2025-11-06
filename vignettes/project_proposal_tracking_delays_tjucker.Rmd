@@ -1,11 +1,12 @@
 ---
-title: |
-  Tracking Delays:
-
-  Analysing the Impact of Precipitation on Swiss Railway Punctuality
-
-  Project Proposal Proseminar AGDS HS2025
+title: "Tracking Delays: Analysing the Impact of Precipitation on Swiss Railway Punctuality"
+subtitle: "Project Proposal – Proseminar AGDS HS2025"
+author: "Thomas Jucker"
+date: "2025-10-12"
+output: html_document
 ---
+
+
 
 # Summary
 
@@ -37,17 +38,12 @@ operation the strongest?
 
 # Implementation
 
-Both [actual train
-operation](https://data.opentransportdata.swiss/en/dataset/ist-daten-v2)
-and the
-[precipitation](https://opendatadocs.meteoswiss.ch/d-radar-data/d1-precipitation-radar-products)
-are accessible as open data. However, punctuality is not directly
+Both [actual trainoperation](https://data.opentransportdata.swiss/en/dataset/ist-daten-v2)
+and the [precipitation](https://opendatadocs.meteoswiss.ch/d-radar-data/d1-precipitation-radar-products) are accessible as open data. However, punctuality is not directly
 published. Actual train operation data first must be processed by
 comparing actual to planned arrival and departure times. This yields the
 information if a train was delayed or not and by how many minutes. VBZ
-has published a
-[script](https://github.com/VerkehrsbetriebeZuerich/ogd_examples_R?tab=readme-ov-file)
-to perform this on their data (VBZ Network only). The goal is to
+has published a [script](https://github.com/VerkehrsbetriebeZuerich/ogd_examples_R?tab=readme-ov-file) to perform this on their data (VBZ Network only). The goal is to
 transfer and apply their method on the data for the complete Swiss
 network. The delay is then mapped spatially on the geographic location
 where the services run. Once punctuality data has a spatial dimension,
@@ -57,23 +53,68 @@ correlation. Since the train data is rather large (≈400 MB per day), the
 time frame analysed will span 24 hours and delay and precipitation will
 be aggregated hourly.
 
-# timeline
+*Punctuality Data Structure and Summary*
+```{r load-punctuality, message=FALSE, warning=FALSE}
+source("../R/01_punctuality.R")
 
-26\. Oct 25: Access raw data needed and wrangle to align time format and
+head(ist_2025_10_11)
+print(punct_summary)
+```
+
+*Punctuality on arrival at Train Stations*
+```{r load-georeferencing, message=FALSE, warning=FALSE}
+source("../R/02_georeferencing.R")
+source("../R/03_punctuality_map.R")
+leaflet(delay_sf_wgs) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%  # grey basemap
+  addCircleMarkers(
+    radius = 4,
+    color = ~viridis(100, option = "plasma")[cut(delay_rate, breaks = 100)],
+    stroke = FALSE,
+    fillOpacity = 0.8,
+    popup = ~paste0(
+      "<b>", HALTESTELLEN_NAME, "</b><br>",
+      "Delay rate: ", round(delay_rate * 100, 1), " %<br>",
+      "Trains delayed: ", n_delayed, " / ", n_trains
+    )
+  ) %>%
+  addLegend(
+    position = "bottomright",
+    pal = colorNumeric(palette = "plasma", domain = delay_sf_wgs$delay_rate),
+    values = delay_sf_wgs$delay_rate,
+    title = "Delay rate"
+  )
+```
+
+*Precipitation Radar Data*
+```{r load-meteorology, message=FALSE, warning=FALSE}
+source("../R/04_meteorology.R")
+
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addStarsImage(daily_total, colors = pal_precip, opacity = 0.8) %>%
+  addLegend(pal = pal_precip, values = as.vector(daily_total[[1]]),
+            title = "Total Daily Precipitation [mm]",
+            position = "bottomright")
+```
+
+# Timeline
+
+26.Oct 25: Access raw data needed and wrangle to align time format and
 geographical resolution
 
-2\. Nov 25: Punctuality calculated and geographically referenced
+2.Nov 25: Punctuality calculated and geographically referenced
 
-9\. Nov 25: Documentation
+9.Nov 25: Documentation
 
-30\. Nov 25: Apply statistical methods to determine correlation. Finish
+30.Nov 25: Apply statistical methods to determine correlation. Finish
 first draft of report
 
-4\. Dec 25: Feedback session in class
+4.Dec 25: Feedback session in class
 
-11\. Dec 25: Implement Feedback
+11.Dec 25: Implement Feedback
 
-18\. Dec 25: Presentation
+18.Dec 25: Presentation
 
 # 
 

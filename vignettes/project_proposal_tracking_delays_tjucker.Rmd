@@ -1,0 +1,95 @@
+---
+title: |
+  Tracking Delays:
+
+  Analysing the Impact of Precipitation on Swiss Railway Punctuality
+
+  Project Proposal Proseminar AGDS HS2025
+---
+
+# Summary
+
+This project investigates how precipitation affects train punctuality
+across the Swiss railway network. The project will derive delay metrics,
+map them geographically, and analyse correlations with precipitation
+through statistical methods. An existing script for punctuality
+calculation will be adapted for national data. Main risks include
+difficulties in adapting the aforementioned method and spatial
+referencing of punctuality, with contingency plans involving expert
+consultation and simplified mapping.
+
+# Background and motivation
+
+Railway operation is affected by a range of environmental factors. In
+Switzerland, these effects are accentuated in autumn, when amount of
+pluvial and nival precipitation increase, temperatures fall and many
+trees drop their leaves. It is common knowledge that this season is
+prone to lower punctuality, which is a measure of quality of this mode
+of transport.
+
+# Objective
+
+The aim of the project is to identify data patterns and correlations
+between punctuality of trains on the Swiss railway network and
+precipitation. Does punctuality correlate with volume and type of
+precipitation at all? Which type of precipitation influences railway
+operation the strongest?
+
+# Implementation
+
+Both [actual train
+operation](https://data.opentransportdata.swiss/en/dataset/ist-daten-v2)
+and the
+[precipitation](https://opendatadocs.meteoswiss.ch/d-radar-data/d1-precipitation-radar-products)
+are accessible as open data. However, punctuality is not directly
+published. Actual train operation data first must be processed by
+comparing actual to planned arrival and departure times. This yields the
+information if a train was delayed or not and by how many minutes. VBZ
+has published a
+[script](https://github.com/VerkehrsbetriebeZuerich/ogd_examples_R?tab=readme-ov-file)
+to perform this on their data (VBZ Network only). The goal is to
+transfer and apply their method on the data for the complete Swiss
+network. The delay is then mapped spatially on the geographic location
+where the services run. Once punctuality data has a spatial dimension,
+it can be related to precipitation radar data for a given location at a
+given time. Standard statistical methods are then applied to investigate
+correlation. Since the train data is rather large (≈400 MB per day), the
+time frame analysed will span 24 hours and delay and precipitation will
+be aggregated hourly.
+
+# timeline
+
+26\. Oct 25: Access raw data needed and wrangle to align time format and
+geographical resolution
+
+2\. Nov 25: Punctuality calculated and geographically referenced
+
+9\. Nov 25: Documentation
+
+30\. Nov 25: Apply statistical methods to determine correlation. Finish
+first draft of report
+
+4\. Dec 25: Feedback session in class
+
+11\. Dec 25: Implement Feedback
+
+18\. Dec 25: Presentation
+
+# 
+
+# Risks and contingency
+
+One of the project risks is that the method to determine punctuality is
+not easily transferable from the VBZ script to the national data. If
+this causes disproportionate effort, help will be sought within the
+railway industry, e.g. creator of the website (puenktlichkeit.ch,
+offline now).
+
+Adding geographical reference to delay might also prove to be onerous.
+Desirable is referencing to a train line in the form of a line vector.
+If too time consuming, it will only be referenced to the point
+coordinates of the according station.
+
+I will be on vacation for 17 days in November. Target being to finish as
+much as possible before I leave. The project timetable is designed
+accordingly.

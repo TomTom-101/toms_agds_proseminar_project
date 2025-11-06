@@ -24,7 +24,7 @@ cpc_urls <- asset_hrefs[grep("/cpc", asset_hrefs)]
 length(cpc_urls)
 
 
-# ownload CPC files only
+# download CPC files only
 download_dir <- "CPC_2025-10-25"
 dir.create(download_dir, showWarnings = FALSE)
 
@@ -90,7 +90,7 @@ pal_precip <- colorNumeric(
 leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addStarsImage(daily_total, colors = pal_precip, opacity = 0.8) %>%
-  addLegend(pal = pal, values = as.vector(daily_total[[1]]),
+  addLegend(pal = pal_precip, values = as.vector(daily_total[[1]]),
             title = "Total Daily Precipitation [mm]",
             position = "bottomright")
 

@@ -77,43 +77,25 @@ df$time <- rep(time_steps, each = nrow(df)/length(time_steps))
 
 cat("Dataframe ready for plotting. Rows:", nrow(df), "\n")
 
-# Create hourly breaks and labels
-hourly_breaks <- seq(from = min(time_steps), to = max(time_steps) + 1, by = "1 hour")  # +1 to include last interval
-hour_labels <- hourly_breaks[-length(hourly_breaks)]
 
-# Initialize list to store hourly slices
-hourly_list <- list()
+# Visualisation for plausibility check
+# Aggregate to daily precipitation
+daily_total <- st_apply(combined, c("x","y"), sum, na.rm = TRUE)
 
-for (i in seq_along(hour_labels)) {
-  idx <- which(time_steps >= hourly_breaks[i] & time_steps < hourly_breaks[i+1])
-  # Sum 10-min slices within the hour
-  hourly_slice <- apply(combined[,,,idx][[1]], c(1,2), sum, na.rm = TRUE)
-  hourly_list[[i]] <- hourly_slice
-}
+# Keep CRS as LV95 (EPSG:2056)
+st_crs(daily_total) <- 2056
 
-# Convert list of hourly matrices to stars object
-hourly_total <- do.call(c, lapply(hourly_list, function(mat) {
-  st_as_stars(mat, dimensions = st_dimensions(combined)[1:2])
-}))
-
-# Assign hourly time dimension
-st_dimensions(hourly_total)$time <- hour_labels
-st_crs(hourly_total) <- 2056
-
-# -------------------------------
-# Leaflet map: visualize first hour
+# Create color palette
 pal_precip <- colorNumeric(
   palette = "viridis",
-  domain = c(0, max(as.numeric(hourly_total[[1]]), na.rm = TRUE)),
+  domain = c(0, max(as.numeric(daily_total[[1]]), na.rm = TRUE)),
   na.color = "transparent"
 )
 
+# Leaflet map with stars object directly
 leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
-  addStarsImage(hourly_total[,,,1], colors = pal_precip, opacity = 0.8) %>%
-  addLegend(
-    pal = pal_precip,
-    values = as.vector(hourly_total[,,,1][[1]]),
-    title = "Hourly Precipitation [mm]",
-    position = "bottomright"
-  )
+  addStarsImage(daily_total, colors = pal_precip, opacity = 0.8) %>%
+  addLegend(pal = pal_precip, values = as.vector(daily_total[[1]]),
+            title = "Total Daily Precipitation [mm]",
+            position = "bottomright")

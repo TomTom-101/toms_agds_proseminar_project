@@ -1,35 +1,24 @@
-# this script downloads, reads, stacks and prepares for plotting the radar precipitation data
-# The data is available under this URL: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-radar-precip?.language=en
-# !!! IF YOU WANT TO CHANGE THE DATE YOU NEED TO SET PARAMETERS MANUALLY
-# IN LINE 17 AND ONCE IN 63 !!! 
+# -----------------------------------------
+# Hourly precipitation map (fast raster tiles)
+# -----------------------------------------
 
 library(httr)
 library(jsonlite)
-library(stars)
+library(terra)
 library(dplyr)
-library(ggplot2)
-library(gganimate)
-library(viridis)
 library(leaflet)
+library(viridis)
 library(leafem)
 
-# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251127-ch
-# read data from online source
-
+# ---- 1. Download CPC radar files ----
 stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251125-ch"
-
 resp <- GET(stac_url)
 stop_for_status(resp)
 item <- fromJSON(content(resp, as="text", encoding="UTF-8"), flatten = TRUE)
 
-# Extract CPC asset URLs
 asset_hrefs <- vapply(item$assets, function(a) a$href, FUN.VALUE = character(1))
 cpc_urls <- asset_hrefs[grep("/cpc", asset_hrefs)]
-length(cpc_urls)
 
-
-# download CPC files only
-# This might take a while (ca. 150 individual files)
 download_dir <- "CPC_daily_precip"
 dir.create(download_dir, showWarnings = FALSE)
 
@@ -43,59 +32,43 @@ for(url in cpc_urls){
   files <- c(files, destfile)
 }
 
-# read CPC HDF5 files as stars objects
-cpc_list <- list()
+# ---- 2. Read HDF5 CPC files as terra raster ----
+r_list <- list()
 for(f in files){
-  s <- tryCatch({
-    read_stars(f, sub="data")
-  }, error=function(e){
-    warning("Failed to read ", f)
-    NULL
-  })
-  if(!is.null(s)){
-    st_crs(s) <- 2056
-    cpc_list[[basename(f)]] <- s
-  }
+  r <- tryCatch({
+    rast(f, subds="data")  # select the "data" subdataset
+  }, error=function(e){ warning("Failed: ", f); NULL })
+  if(!is.null(r)) r_list[[basename(f)]] <- r
 }
 
-# Combine 2D stars objects into a 3D stars object along time
-combined <- do.call(c, c(cpc_list, along = "time"))
+# ---- 3. Stack all 10-min rasters ----
+combined <- rast(r_list)
 
-# Set date chosen above to create time steps
-# Create 10-min time steps
+# ---- 4. Create 10-min timestamps ----
 time_steps <- seq(as.POSIXct("2025-11-25 00:00:00", tz="UTC"),
-                  by = "10 min",
-                  length.out = length(cpc_list))
+                  by="10 min", length.out = length(r_list))
 
-# Assign values to time dimension
-combined <- st_set_dimensions(combined, "time", values = time_steps)
+# ---- 5. Aggregate to hourly precipitation ----
+# 1 hour = 6 x 10-min layers
+hourly_stack <- rast()
+for(h in 0:23){
+  idx <- (h*6 + 1):(h*6 + 6)
+  hourly_stack <- c(hourly_stack, sum(combined[[idx]], na.rm=TRUE))
+}
+names(hourly_stack) <- paste0("hour_", 0:23)
 
-# Convert to dataframe for ggplot
-df <- as.data.frame(combined, xy=TRUE)
-colnames(df)[3] <- "precip"
-df$time <- rep(time_steps, each = nrow(df)/length(time_steps))
+# ---- 6. Reproject to WGS84 for Leaflet ----
+hourly_stack_wgs <- project(hourly_stack, "EPSG:4326")
 
-cat("Dataframe ready for plotting. Rows:", nrow(df), "\n")
+# ---- 7. Plot on Leaflet ----
+hour_to_plot <- 8  # choose hour 0-23
+first_hour <- hourly_stack_wgs[[hour_to_plot + 1]]
 
+# Color palette
+pal_precip <- colorNumeric(palette="viridis", values(first_hour), na.color="transparent")
 
-# Visualisation for plausibility check
-# Aggregate to daily precipitation
-daily_total <- st_apply(combined, c("x","y"), sum, na.rm = TRUE)
-
-# Keep CRS as LV95 (EPSG:2056)
-st_crs(daily_total) <- 2056
-
-# Create color palette
-pal_precip <- colorNumeric(
-  palette = "viridis",
-  domain = c(0, max(as.numeric(daily_total[[1]]), na.rm = TRUE)),
-  na.color = "transparent"
-)
-
-# Leaflet map with stars object directly
 leaflet() %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  addStarsImage(daily_total, colors = pal_precip, opacity = 0.8) %>%
-  addLegend(pal = pal_precip, values = as.vector(daily_total[[1]]),
-            title = "Total Daily Precipitation [mm]",
-            position = "bottomright")
+  addProviderTiles(providers$OpenStreetMap) %>%
+  addRasterImage(first_hour, colors = pal_precip, opacity = 0.7) %>%
+  addLegend(pal = pal_precip, values = values(first_hour),
+            title = paste0("Hourly Precipitation [mm] (Hour ", hour_to_plot, ")"))

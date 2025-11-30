@@ -1,5 +1,6 @@
 # this script downloads, reads, stacks and prepares for plotting the radar precipitation data
-# The data is available under this URL: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-radar-precip/items/20251025-ch
+# The data is available under this URL: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-radar-precip?.language=en
+# !!! YOU NEED TO SET PARAMETERS MANUALLY TWICE IN THIS SCRIPT, ONCE IN LINE 17 AND ONCE IN 63 !!! 
 
 library(httr)
 library(jsonlite)
@@ -11,8 +12,10 @@ library(viridis)
 library(leaflet)
 library(leafem)
 
-# Fetch STAC item for 25 Oct 2025 ---
-stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251025-ch"
+# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251127-ch
+# read data from online source
+
+stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251127-ch"
 
 resp <- GET(stac_url)
 stop_for_status(resp)
@@ -25,7 +28,8 @@ length(cpc_urls)
 
 
 # download CPC files only
-download_dir <- "CPC_2025-10-25"
+# This might take a while (ca. 150 individual files)
+download_dir <- "CPC_daily_precip"
 dir.create(download_dir, showWarnings = FALSE)
 
 files <- character(0)
@@ -56,8 +60,9 @@ for(f in files){
 # Combine 2D stars objects into a 3D stars object along time
 combined <- do.call(c, c(cpc_list, along = "time"))
 
+# Set date chosen above to create time steps
 # Create 10-min time steps
-time_steps <- seq(as.POSIXct("2025-10-25 00:00:00", tz="UTC"),
+time_steps <- seq(as.POSIXct("2025-11-27 00:00:00", tz="UTC"),
                   by = "10 min",
                   length.out = length(cpc_list))
 

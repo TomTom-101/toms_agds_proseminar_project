@@ -1,6 +1,7 @@
-# -----------------------------------------
-# Hourly precipitation map (fast raster tiles)
-# -----------------------------------------
+# this script downloads, reads, stacks and prepares for plotting the radar precipitation data
+# The data is available under this URL: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-radar-precip?.language=en
+# !!! IF YOU WANT TO CHANGE THE DATE YOU NEED TO SET PARAMETERS MANUALLY
+# IN LINE 17 AND ONCE IN 63 !!! 
 
 library(httr)
 library(jsonlite)
@@ -10,7 +11,9 @@ library(leaflet)
 library(viridis)
 library(leafem)
 
-# ---- 1. Download CPC radar files ----
+# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251127-ch
+# read data from online source
+
 stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251125-ch"
 resp <- GET(stac_url)
 stop_for_status(resp)
@@ -32,7 +35,7 @@ for(url in cpc_urls){
   files <- c(files, destfile)
 }
 
-# ---- 2. Read HDF5 CPC files as terra raster ----
+# Read HDF5 CPC files as terra raster 
 r_list <- list()
 for(f in files){
   r <- tryCatch({
@@ -41,14 +44,14 @@ for(f in files){
   if(!is.null(r)) r_list[[basename(f)]] <- r
 }
 
-# ---- 3. Stack all 10-min rasters ----
+# Stack all 10-min rasters 
 combined <- rast(r_list)
 
-# ---- 4. Create 10-min timestamps ----
+# Create 10-min timestamps
 time_steps <- seq(as.POSIXct("2025-11-25 00:00:00", tz="UTC"),
                   by="10 min", length.out = length(r_list))
 
-# ---- 5. Aggregate to hourly precipitation ----
+# Aggregate to hourly precipitation
 # 1 hour = 6 x 10-min layers
 hourly_stack <- rast()
 for(h in 0:23){
@@ -57,10 +60,10 @@ for(h in 0:23){
 }
 names(hourly_stack) <- paste0("hour_", 0:23)
 
-# ---- 6. Reproject to WGS84 for Leaflet ----
+# Reproject to WGS84 for Leaflet
 hourly_stack_wgs <- project(hourly_stack, "EPSG:4326")
 
-# ---- 7. Plot on Leaflet ----
+# Plot on Leaflet
 hour_to_plot <- 8  # choose hour 0-23
 first_hour <- hourly_stack_wgs[[hour_to_plot + 1]]
 

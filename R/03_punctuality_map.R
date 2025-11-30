@@ -13,7 +13,7 @@ library(rosm)
 library(leaflet)
 
 # Convert coordinates to numeric
-punctuality_2025_10_11_geo <- punctuality_2025_10_11_geo %>%
+daily_punct_train_geo <- daily_punct_train_geo %>%
   mutate(
     E_Koordinate = as.numeric(`E-Koordinate`),
     N_Koordinate = as.numeric(`N-Koordinate`)
@@ -21,7 +21,7 @@ punctuality_2025_10_11_geo <- punctuality_2025_10_11_geo %>%
 
 
 # Calculate delay rate per stop
-delay_rate_per_stop <- punctuality_2025_10_11_geo %>%
+delay_rate_per_stop <- daily_punct_train_geo %>%
   group_by(BPUIC, HALTESTELLEN_NAME) %>%
   summarise(
     n_trains = n(),
@@ -39,7 +39,7 @@ delay_geo <- delay_rate_per_stop %>%
     by = "BPUIC"
   )
 
-# convert to sf
+# convert to simple features (sf)
 delay_sf <- st_as_sf(
   delay_geo,
   coords = c("E_Koordinate", "N_Koordinate"),

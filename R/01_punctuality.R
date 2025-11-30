@@ -8,23 +8,25 @@ library(lubridate)
 library(readr)
 library(stringr)
 
-# Read data from online source
-ist_2025_10_11 <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/42fafc47-199d-4626-ae1e-edb34abdc382/download/2025-10-11_istdaten.csv'
-ist_2025_10_11 <- read.csv(ist_2025_10_11, header = TRUE, sep = ';', stringsAsFactors = FALSE)
+# open URL above and choose a date at least three days ago, e.g. 2025-11-27_IstDaten.csv
+# click on date, copy download-url and paste below
+# read data from online source
+daily_punct_raw <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/937ebc15-9cad-49fe-a4f6-7346dd53d0e4/download/2025-11-27_istdaten.csv'
+daily_punct_raw <- read.csv(daily_punct_raw, header = TRUE, sep = ';', stringsAsFactors = FALSE)
 
 # Create new dataframe with only train data
-punctuality_2025_10_11 <- ist_2025_10_11%>%
+daily_punct_raw_train <- daily_punct_raw%>%
   filter(PRODUKT_ID == "Zug")
 
 # Filter for only swiss trains by BPUIC Code 
 # Basic format: UIC country code (2-digit) e.g. 85,  UIC stop code (5-digit): e.g. 03000, stop code (optional): e.g. 02. Gives: 850300002
 
-punctuality_2025_10_11 <- punctuality_2025_10_11 %>%
+daily_punct_raw_train <- daily_punct_raw_train %>%
   filter(str_starts(BPUIC, "85"))
 
 
 # Calculate punctuality
-punctuality_2025_10_11 <- punctuality_2025_10_11%>%
+daily_punct_raw_train <- daily_punct_raw_train%>%
   # convert times
   mutate(
     ANKUNFTSZEIT = dmy_hm(ANKUNFTSZEIT),
@@ -46,7 +48,7 @@ punctuality_2025_10_11 <- punctuality_2025_10_11%>%
   )
 
 # quick summary to check plausibility
-punct_summary <- punctuality_2025_10_11 %>%
+punct_summary <- daily_punct_raw_train %>%
   summarise(
     total_trains = n(),
     delayed_trains = sum(punct_cat == "delayed", na.rm = TRUE),

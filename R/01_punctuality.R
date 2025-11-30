@@ -1,6 +1,7 @@
 # This script calculates train punctuality based on daily actual lines ran. 
 # The data is available under this URL: https://opendata.swiss/de/dataset/ist-daten-v2
-# !!! YOU NEED TO SET PARAMETERS MANUALLY IN THIS SCRIPT, ONCE IN LINE 15 !!!
+# !!! IF YOU WANT TO CHANGE THE DATE YOU NEED TO SET PARAMETERS MANUALLY 
+# IN LINE 15 !!!
 
 # Load packages
 library(dplyr)
@@ -9,10 +10,10 @@ library(lubridate)
 library(readr)
 library(stringr)
 
-# open URL above and choose a date at least three days ago, e.g. 2025-11-27_IstDaten.csv
+# open URL above and choose a date at least three days ago, e.g. 2025-11-25_IstDaten.csv
 # click on date, copy download-url and paste below
 # read data from online source, this might take some minutes (500MB+)
-daily_punct_raw <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/937ebc15-9cad-49fe-a4f6-7346dd53d0e4/download/2025-11-27_istdaten.csv'
+daily_punct_raw <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/59f062a9-5a8a-474c-be4b-9a350f75e670/download/2025-11-25_istdaten.csv'
 daily_punct_raw <- read.csv(daily_punct_raw, header = TRUE, sep = ';', stringsAsFactors = FALSE)
 
 # Create new dataframe with only train data

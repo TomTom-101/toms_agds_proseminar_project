@@ -9,12 +9,29 @@ library(tidyr)
 library(lubridate)
 library(readr)
 library(stringr)
+library(httr)
+
+# Increase session timeout time to 3 minutes because of file downloading
+set_config(timeout(180))  
+
 
 # open URL above and choose a date at least three days ago, e.g. 2025-11-25_IstDaten.csv
 # click on date, copy download-url and paste below
 # read data from online source, this might take some minutes (500MB+)
-daily_punct_raw <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/59f062a9-5a8a-474c-be4b-9a350f75e670/download/2025-11-25_istdaten.csv'
-daily_punct_raw <- read.csv(daily_punct_raw, header = TRUE, sep = ';', stringsAsFactors = FALSE)
+daily_punct_url <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/59f062a9-5a8a-474c-be4b-9a350f75e670/download/2025-11-25_istdaten.csv'
+
+# Local temporary file
+destfile <- tempfile(fileext = ".csv")
+
+# Download with progress
+GET(
+  daily_punct_url,
+  write_disk(destfile, overwrite = TRUE),
+  progress()
+)
+
+# Read downloaded file
+daily_punct_raw <- read.csv(destfile, header = TRUE, sep = ';', stringsAsFactors = FALSE)
 
 # Create new dataframe with only train data
 daily_punct_raw_train <- daily_punct_raw%>%

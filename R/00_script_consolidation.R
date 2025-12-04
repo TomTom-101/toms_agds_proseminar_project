@@ -6,7 +6,8 @@ rm(list = ls())
 #  Install missing packages automatically
 required_packages <- c(
   "dplyr", "sf", "terra", "leaflet", "viridis",
-  "lubridate", "ggplot2", "tidyr", "httr", "jsonlite", "renv"
+  "lubridate", "ggplot2", "tidyr", "httr", "jsonlite",
+  "readr", "ggspatial", "leafem", "tidyverse", "httr"
 )
 
 installed <- installed.packages()[, "Package"]
@@ -29,35 +30,29 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(httr)
   library(jsonlite)
-  library(renv)
-})
+  library(readr)
+  library(ggspatial)
+  library(leafem)
+  library(httr)
+  
+  })
 
-# Activate the project-local environment (renv will use Rproj folder)
-renv::activate()
-renv::restore(prompt = FALSE)
-
-# Run each script in order
+# Run each script in order (this might take some time)
 scripts <- c(
-  "01_punctuality.R",      # download & process train punctuality
-  "02_georeferencing.R",   # add coordinates to train data
-  "03_punctuality_map.R",  # create punctuality map
-  "04_meteorology.R",      # download & process precipitation
-  "05_analysis.R"          # combine data, correlation, plots
+  "R/01_punctuality.R",      # download & process train punctuality
+  "R/02_georeferencing.R",   # add coordinates to train data
+  "R/03_punctuality_map.R",  # create punctuality map
+  "R/04_meteorology.R",      # download & process precipitation
+  "R/05_analysis.R"          # combine data, correlation, plots
 )
 
 for (s in scripts) {
-  if (!file.exists(s)) {
-    warning("Script not found: ", s, " – skipping.")
-    next
-  }
+  if (!file.exists(s)) stop("Script not found: ", s)
   message("Running ", s, " ...")
-  tryCatch(
-    source(s),
-    error = function(e) {
-      message("Error in ", s, ": ", e$message)
-    }
-  )
+  source(s, local = FALSE)
+  message("Finished ", s)
 }
 
+
 # Completion message
-cat("\nMaster script completed successfully.\n")
+cat("\nMaster script completed \n")

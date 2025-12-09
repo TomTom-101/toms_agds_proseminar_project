@@ -41,17 +41,13 @@ Processing is conducted to match the hourly punctuality data structure.
 Hourly precipitation total is then extracted at the exact locations of the 
 train stations. Eventually, global and hourly correlation is investigated.
 
-## Results
+# Results
 
-# Run Script
+## Run Script
 
-Run the complete workflow to create necessary environment to display 
-punctuality, precipitation and correlation between the two.
+Run the complete workflow *R/00_script_consolidation.R* to create necessary 
+environment to display punctuality, precipitation and correlation between the two.
 
-```{r}
-source("R/00_script_consolidation.R", local = TRUE)
-
-```
 
 ## Punctuality
 ```{r}

@@ -1,0 +1,186 @@
+---
+title: "Tracking Delays: Analysing the Impact of Precipitation on Swiss Railway Punctuality"
+author: "Thomas Jucker"
+date: "18 December 2025"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+
+# Introduction
+Gives the background, explains the relevance, and motivates the (research) question. The introduction may also motivate the methodological approach, but doesn’t give its details.
+
+Railway operation is affected by a range of environmental factors. In Switzerland,
+these effects are accentuated in autumn, when precipitation increases, temperatures
+fall and many trees drop their leaves. It is common knowledge that this season is
+prone to lower punctuality, which is a measure of quality of this mode of transport. 
+This project investigates the influence of one of these variables, precipitation.
+The script is built to analyse a recent 24h timeframe.
+
+
+# Methods and Data:
+First, daily public transport data is obtained from an open data source
+"(opentransportdata.swiss)". The raw data contains one data point for every ride
+conducted on that day. E.g. The stop of train service R16 in Biel with planned
+and actual arrival and departure time. Because the dataset also contains 
+non-swiss stops and bus and ferry services, its filtered for to the relevant
+extent first. Then delay on arrival is calculated from planned vs. actual values.
+Delays on departure are ignored because it is assumed that they would not be 
+caused by precipitation but rather from human influence. 
+Then the train stations are assigned their geographical coordinates by matching
+the BPUIC number to an open source table containing their location
+"(opentransportdata.swiss)". Next, the data is aggregated to show delay rate 
+per stop and per hour. Precipitation data stems from the radar product
+CombiPrecip"(CPC)" by the Federal Office of Meteorology and Climatology 
+MeteoSwiss. Data is provided as .h5 raster files with a time resolution of 
+10 minutes, containing the precipitation total of the previous 60 minutes. 
+Processing is conducted to match the hourly punctuality data structure. 
+Hourly precipitation total is then extracted at the exact locations of the 
+train stations. Eventually, global and hourly correlation is investigated.
+
+## Results
+
+# Run Script
+
+Run the complete workflow to create necessary environment to display 
+punctuality, precipitation and correlation between the two.
+
+```{r}
+source("R/00_script_consolidation.R", local = TRUE)
+
+```
+
+## Punctuality
+```{r}
+# Leaflet Map for specific hour
+hour_to_plot <- 8   # choose the hour you want to display
+delay_hour_subset <- delay_sf_hourly_wgs %>%
+  filter(hour == hour_to_plot)
+
+leaflet(delay_hour_subset) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addCircleMarkers(
+    radius = 4,
+    color = ~viridis(100, option = "plasma")[cut(delay_rate, breaks = 100)],
+    stroke = FALSE,
+    fillOpacity = 0.8,
+    popup = ~paste0(
+      "<b>", HALTESTELLEN_NAME, "</b><br>",
+      "Hour: ", hour, ":00<br>",
+      "Delay rate: ", round(delay_rate * 100, 1), " %<br>",
+      "Trains delayed: ", n_delayed, " / ", n_trains
+    )
+  ) %>%
+  addLegend(
+    position = "bottomright",
+    pal = colorNumeric(palette = "plasma", domain = delay_hour_subset$delay_rate),
+    values = delay_hour_subset$delay_rate,
+    title = paste0("Delay rate @ ", hour_to_plot, ":00")
+  )
+
+```
+
+Hourly punctuality usually shows high regional variability. A delay rate of 0 
+means no trains were delayed during that hour on that stop. A delay rate of 1 
+means all trains were delay. Selecting the stops displays the amount of trains.
+
+## Precipitation 
+
+```{r}
+leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap) %>%
+  addRasterImage(first_hour, colors = pal_precip, opacity = 0.7) %>%
+  addLegend(pal = pal_precip, values = values(first_hour),
+            title = paste0("Hourly Precipitation [mm] (Hour ", hour_to_plot, ")"))
+```
+
+Hourly precipitation total is display can be explored through an interactive
+map. This allows for a first visual, spatial comparison of precipitation and 
+delay concentration.
+
+## Punctuality and Precipitation Synthesis Map
+```{r}
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  
+  # Raster layer for precipitation
+  addRasterImage(
+    precip_r,
+    colors = pal_precip,
+    opacity = 0.6,
+    group = "Precipitation"
+  ) %>%
+  
+  # Delay points layer
+  addCircleMarkers(
+    data = delay_hour_subset,
+    radius = 5,
+    color = ~pal_delay(delay_rate),
+    stroke = FALSE,
+    fillOpacity = 0.9,
+    popup = ~paste0(
+      "<b>", HALTESTELLEN_NAME, "</b><br>",
+      "Hour: ", hour, ":00<br>",
+      "Delay rate: ", round(delay_rate * 100, 1), "%<br>",
+      "Precipitation: ", round(precip_mm, 2), " mm"
+    ),
+    group = "Delay rate"
+  ) %>%
+  
+  
+  # Legends
+  addLegend(
+    "bottomright", pal = pal_delay, values = delay_hour_subset$delay_rate,
+    title = paste0("Delay rate @ ", hour_to_plot, ":00")
+  ) %>%
+  addLegend(
+    "bottomleft", pal = pal_precip, values = values(precip_r),
+    title = paste0("Hourly precipitation (mm) @ ", hour_to_plot, ":00")
+  )
+```
+
+Merging the two variables into one map yields the precise precipitation
+volumes at the stations.
+
+## Correlation
+
+The pearson correlation between hourly precipitation and punctuality shows
+no significant relationship. Correlation values are comparatively low and also 
+not consistently positive or negative for different hours of the day. 
+
+```{r}
+print(cor_hourly, n = Inf)
+```
+Plotting the variables on a scatterplot confirms this. The different data points,
+punctuality and precipitation at a specific stop, seem to show no apparent pattern.
+
+```{r}
+ggplot(analysis_df, aes(x = delay_rate, y = precip_mm)) +
+  geom_point(alpha = 0.3, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(
+    title = "Correlation between Precipitation and Train Delay Rate",
+    x = "Precipitation (mm)",
+    y = "Delay rate"
+  )
+```
+
+
+# Discussion: 
+The results suggest that precipitation is not *the* single, significant factor
+influencing train punctuality. However, the results should be considered with
+caution. The analysis conducted contains some important shortcomings. Firstly, 
+the time period of 24 hours is too short. By analysing a longer time series, 
+e.g. 5 years, seasonal patterns might be detected. Secondly, precipitation values
+are extracted at the coordinates of the train stops only. Including precipitation
+at the immediate sourounding of a stop might improve the model. Thirdly, train delays can
+arise from a multitude of influences. Adding more environmental values such as
+type of precipitation, temperature or humidity or correcting for human influence
+could result in a better r2 score. Fourthly, instead of using single stop
+stations, analysing train services along lines (e.g. Zurich - Olten - Bern) 
+could also improve significance of the findings. 
+

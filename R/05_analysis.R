@@ -105,18 +105,16 @@ analysis_df <- station_delay_precip %>%
   st_drop_geometry() %>%
   filter(!is.na(precip_mm), !is.na(delay_rate))
 
-# 1. Global correlation (all stations × all hours)
+# Global correlation (all stations × all hours)
 cor_all <- cor(analysis_df$precip_mm, analysis_df$delay_rate, use = "complete.obs")
 cat("Global correlation (all stations × all hours):", round(cor_all, 3), "\n")
 
-# 2. Hourly correlation
+# Hourly correlation
 cor_hourly <- analysis_df %>%
   group_by(hour) %>%
   summarise(correlation = cor(precip_mm, delay_rate, use = "complete.obs"))
 
-print(cor_hourly)
-
-# 3. Scatterplot: precipitation vs delay rate (all hours)
+# Scatterplot: precipitation vs delay rate (all hours)
 ggplot(analysis_df, aes(x = delay_rate, y = precip_mm)) +
   geom_point(alpha = 0.3, color = "steelblue") +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
@@ -127,7 +125,7 @@ ggplot(analysis_df, aes(x = delay_rate, y = precip_mm)) +
     y = "Delay rate"
   )
 
-# 4. Binned analysis: average delay per precipitation class
+# Binned analysis: average delay per precipitation class
 precip_bins <- analysis_df %>%
   mutate(precip_class = cut(precip_mm, breaks = c(0, 0.2, 1, 3, 10, Inf))) %>%
   group_by(precip_class) %>%
@@ -138,7 +136,7 @@ precip_bins <- analysis_df %>%
 
 print(precip_bins)
 
-# 5. Optional: barplot of mean delay per precipitation bin
+# Barplot of mean delay per precipitation bin
 ggplot(precip_bins, aes(x = precip_class, y = mean_delay)) +
   geom_col(fill = "steelblue") +
   theme_minimal() +

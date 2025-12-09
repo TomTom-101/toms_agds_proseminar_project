@@ -11,10 +11,10 @@ library(leaflet)
 library(viridis)
 library(leafem)
 
-# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251127-ch
+# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251206-ch
 # read data from online source
 
-stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251125-ch"
+stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251206-ch"
 resp <- GET(stac_url)
 stop_for_status(resp)
 item <- fromJSON(content(resp, as="text", encoding="UTF-8"), flatten = TRUE)

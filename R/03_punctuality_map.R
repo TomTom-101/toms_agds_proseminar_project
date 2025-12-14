@@ -59,6 +59,9 @@ coords <- crds(delay_vect)            # Extract coordinates as a matrix
 delay_df$x <- coords[,1]              # Longitude
 delay_df$y <- coords[,2]              # Latitude
 
+# Load Switzerland outline
+switzerland <- ne_countries(country = "Switzerland", scale = "medium", returnclass = "sf")
+switzerland <- st_transform(switzerland, crs = 4326)
 
 # Create plot for every hour
 for (h in 0:23) {
@@ -118,7 +121,7 @@ files_ordered <- files[order(hours)]
 imgs <- image_read(files_ordered)
 
 # Create GIF
-punct_gif <- image_animate(imgs, fps = 2)  # adjust fps as needed
+punct_gif <- image_animate(imgs, fps = 1)
 
 # Save GIF
 image_write(punct_gif, "figures/punctuality_map_all_hours.gif")

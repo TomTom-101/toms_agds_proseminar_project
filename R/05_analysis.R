@@ -298,3 +298,18 @@ ggsave(
   height = 5,
   dpi = 300
 )
+
+# correlation by hour
+cor_hourly_plot <- cor_hourly %>%
+  ggplot(aes(x = hour, y = correlation)) +
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "red") +
+  theme_minimal() +
+  labs(
+    title = "Hourly Correlation: Precipitation vs Delay Rate",
+    x = "Hour of day",
+    y = "Pearson correlation (r)"
+  )
+
+ggsave("figures/correlation_hourly.png", cor_hourly_plot, width = 7, height = 5, dpi = 300)
+

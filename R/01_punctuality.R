@@ -20,8 +20,8 @@ set_config(timeout(180))
 # read data from online source, this might take some minutes (500MB+)
 daily_punct_url <- 'https://data.opentransportdata.swiss/dataset/febff1f3-ee85-470a-9487-2d07f93457c1/resource/96ac8376-bb74-4d02-843c-fc7e688f3f6f/download/2025-12-07_istdaten.csv'
 
-# Local temporary file
-destfile <- tempfile(fileext = ".csv")
+# Local file in /data
+destfile <- "data/daily_punct_train.csv"
 
 # Download with progress
 GET(

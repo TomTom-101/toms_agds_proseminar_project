@@ -5,9 +5,9 @@ rm(list = ls())
 
 #  Install missing packages automatically
 required_packages <- c(
-  "dplyr", "sf", "terra", "leaflet", "viridis",
+  "dplyr", "sf", "terra", "viridis", "gganimate", "here",
   "lubridate", "ggplot2", "tidyr", "httr", "jsonlite",
-  "readr", "ggspatial", "leafem", "tidyverse", "httr"
+  "ggspatial", "httr", "magick", "stringr", "rnaturalearth"
 )
 
 installed <- installed.packages()[, "Package"]
@@ -23,7 +23,6 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(sf)
   library(terra)
-  library(leaflet)
   library(viridis)
   library(lubridate)
   library(ggplot2)
@@ -31,9 +30,11 @@ suppressPackageStartupMessages({
   library(httr)
   library(jsonlite)
   library(readr)
-  library(ggspatial)
-  library(leafem)
-  library(httr)
+  library(gganimate)
+  library(magick)  
+  library(rnaturalearth)
+  library(sf)
+  library(here)
   
   })
 

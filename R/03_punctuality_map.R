@@ -70,7 +70,7 @@ for (h in 0:23) {
   if (nrow(delay_hour) == 0) next
   
   # Create plot
-  p_hour <- ggplot() +
+  punct_hour <- ggplot() +
     geom_sf(data = switzerland, fill = "gray95", color = "gray70") +
     geom_point(
       data = delay_hour,
@@ -99,7 +99,7 @@ for (h in 0:23) {
   # Save plot
   ggsave(
     filename = paste0("figures/", hour_str, "_punctuality_map.png"),
-    plot = p_hour,
+    plot = punct_hour,
     width = 8,
     height = 6,
     dpi = 300

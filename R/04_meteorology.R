@@ -14,13 +14,13 @@ library(rnaturalearth)
 library(sf)
 
 # Download radar CPC data
-# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251206-ch
+# adjust URL below and insert the same date as for 01_punctuality.R, eg. /20251207-ch
 # read data from online source
 
 download_dir <- "data/CPC_daily_precip"
 dir.create(download_dir, showWarnings = FALSE)
 
-stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251206-ch"
+stac_url <- "https://data.geo.admin.ch/api/stac/v0.9/collections/ch.meteoschweiz.ogd-radar-precip/items/20251207-ch"
 resp <- GET(stac_url)
 stop_for_status(resp)
 item <- fromJSON(content(resp, as="text", encoding="UTF-8"), flatten = TRUE)
@@ -115,5 +115,5 @@ hours <- as.numeric(str_extract(files, "^\\d{2}"))
 files_ordered <- files[order(hours)]
 
 imgs <- image_read(files_ordered)
-precip_gif <- image_animate(imgs, fps=2)
+precip_gif <- image_animate(imgs, fps=1)
 image_write(precip_gif, "figures/precipitation_all_hours.gif")

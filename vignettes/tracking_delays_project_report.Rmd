@@ -9,68 +9,11 @@ output:
     toc_float: true
 ---
 
-```{r setup, include=FALSE}
-# Running Master script to run the full train delay & precipitation analysis
-# Equal to 00_script_consolidation.R
-
-# Clear environment
-rm(list = ls())
-
-#  Install missing packages automatically
-required_packages <- c(
-  "dplyr", "sf", "terra", "leaflet", "viridis",
-  "lubridate", "ggplot2", "tidyr", "httr", "jsonlite",
-  "readr", "ggspatial", "leafem", "tidyverse", "httr"
-)
-
-installed <- installed.packages()[, "Package"]
-to_install <- setdiff(required_packages, installed)
-
-if (length(to_install) > 0) {
-  message("Installing missing packages: ", paste(to_install, collapse = ", "))
-  install.packages(to_install)
-}
-
-# Load required packages
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(sf)
-  library(terra)
-  library(leaflet)
-  library(viridis)
-  library(lubridate)
-  library(ggplot2)
-  library(tidyr)
-  library(httr)
-  library(jsonlite)
-  library(readr)
-  library(ggspatial)
-  library(leafem)
-  library(httr)
-  
-  })
-
-# Run each script in order (this might take some time)
-scripts <- c(
-  "R/01_punctuality.R",      # download & process train punctuality
-  "R/02_georeferencing.R",   # add coordinates to train data
-  "R/03_punctuality_map.R",  # create punctuality map
-  "R/04_meteorology.R",      # download & process precipitation
-  "R/05_analysis.R"          # combine data, correlation, plots
-)
-
-for (s in scripts) {
-  if (!file.exists(s)) stop("Script not found: ", s)
-  message("Running ", s, " ...")
-  source(s, local = FALSE)
-  message("Finished ", s)
-}
-
-
-# Completion message
-cat("\nMaster script completed \n")
+```{r, echo=FALSE}
+library(here)
+library(ggplot2)
+library(knitr)
 ```
-
 # Introduction
 Gives the background, explains the relevance, and motivates the (research) question. The introduction may also motivate the methodological approach, but doesn’t give its details.
 
@@ -82,9 +25,9 @@ This project investigates the influence of one of these variables, precipitation
 The script is built to analyse a recent 24h timeframe.
 
 
-# Methods and Data:
+# Methods and Data
 First, daily public transport data is obtained from an open data source
-"(opentransportdata.swiss)". The raw data contains one data point for every ride
+*opentransportdata.swiss*. The raw data contains one data point for every ride
 conducted on that day. E.g. The stop of train service R16 in Biel with planned
 and actual arrival and departure time. Because the dataset also contains 
 non-swiss stops and bus and ferry services, its filtered for to the relevant
@@ -93,9 +36,9 @@ Delays on departure are ignored because it is assumed that they would not be
 caused by precipitation but rather from human influence. 
 Then the train stations are assigned their geographical coordinates by matching
 the BPUIC number to an open source table containing their location
-"(opentransportdata.swiss)". Next, the data is aggregated to show delay rate 
+*opentransportdata.swiss*. Next, the data is aggregated to show delay rate 
 per stop and per hour. Precipitation data stems from the radar product
-CombiPrecip"(CPC)" by the Federal Office of Meteorology and Climatology 
+CombiPrecip (CPC) by the Federal Office of Meteorology and Climatology 
 MeteoSwiss. Data is provided as .h5 raster files with a time resolution of 
 10 minutes, containing the precipitation total of the previous 60 minutes. 
 Processing is conducted to match the hourly punctuality data structure. 
@@ -104,39 +47,9 @@ train stations. Eventually, global and hourly correlation is investigated.
 
 # Results
 
-## Run Script
-
-Run the complete workflow *R/00_script_consolidation.R* to create necessary 
-environment to display punctuality, precipitation and correlation between the two.
-
-
 ## Punctuality
-```{r}
-# Leaflet Map for specific hour
-hour_to_plot <- 8   # choose the hour you want to display
-delay_hour_subset <- delay_sf_hourly_wgs %>%
-  filter(hour == hour_to_plot)
-
-leaflet(delay_hour_subset) %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  addCircleMarkers(
-    radius = 4,
-    color = ~viridis(100, option = "plasma")[cut(delay_rate, breaks = 100)],
-    stroke = FALSE,
-    fillOpacity = 0.8,
-    popup = ~paste0(
-      "<b>", HALTESTELLEN_NAME, "</b><br>",
-      "Hour: ", hour, ":00<br>",
-      "Delay rate: ", round(delay_rate * 100, 1), " %<br>",
-      "Trains delayed: ", n_delayed, " / ", n_trains
-    )
-  ) %>%
-  addLegend(
-    position = "bottomright",
-    pal = colorNumeric(palette = "plasma", domain = delay_hour_subset$delay_rate),
-    values = delay_hour_subset$delay_rate,
-    title = paste0("Delay rate @ ", hour_to_plot, ":00")
-  )
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "13_punctuality_map.png"))
 
 ```
 
@@ -144,59 +57,39 @@ Hourly punctuality usually shows high regional variability. A delay rate of 0
 means no trains were delayed during that hour on that stop. A delay rate of 1 
 means all trains were delay. Selecting the stops displays the amount of trains.
 
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "punctuality_map_all_hours.gif"))
+
+```
 ## Precipitation 
 
-```{r}
-leaflet() %>%
-  addProviderTiles(providers$OpenStreetMap) %>%
-  addRasterImage(first_hour, colors = pal_precip, opacity = 0.7) %>%
-  addLegend(pal = pal_precip, values = values(first_hour),
-            title = paste0("Hourly Precipitation [mm] (Hour ", hour_to_plot, ")"))
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "13_precipitation.png"))
+
 ```
 
 Hourly precipitation total is display can be explored through an interactive
 map. This allows for a first visual, spatial comparison of precipitation and 
 delay concentration.
 
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "precipitation_all_hours.gif"))
+
+```
+
 ## Punctuality and Precipitation Synthesis Map
-```{r}
-leaflet() %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  
-  addRasterImage(
-    precip_r,
-    colors = pal_precip,
-    opacity = 0.6,
-    group = "Precipitation"
-  ) %>%
-  
-  addCircleMarkers(
-    data = delay_hour_subset,
-    radius = 5,
-    color = ~pal_delay(delay_rate),
-    stroke = FALSE,
-    fillOpacity = 0.9,
-    popup = ~paste0(
-      "<b>", HALTESTELLEN_NAME, "</b><br>",
-      "Hour: ", hour, ":00<br>",
-      "Delay rate: ", round(delay_rate * 100, 1), "%<br>",
-      "Precipitation: ", round(precip_mm, 2), " mm"
-    ),
-    group = "Delay rate"
-  ) %>%
-  
-  addLegend(
-    "bottomright", pal = pal_delay, values = delay_hour_subset$delay_rate,
-    title = paste0("Delay rate @ ", hour_to_plot, ":00")
-  ) %>%
-  addLegend(
-    "bottomleft", pal = pal_precip, values = values(precip_r),
-    title = paste0("Hourly precipitation (mm) @ ", hour_to_plot, ":00")
-  )
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "13_combined_map.png"))
+
 ```
 
 Merging the two variables into one map yields the precise precipitation
 volumes at the stations.
+
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "punct_precip_all_hours.gif"))
+
+```
 
 ## Correlation
 
@@ -204,22 +97,30 @@ The pearson correlation between hourly precipitation and punctuality shows
 no significant relationship. Correlation values are comparatively low and also 
 not consistently positive or negative for different hours of the day. 
 
-```{r}
-print(cor_hourly, n = Inf)
-```
 Plotting the variables on a scatterplot confirms this. The different data points,
-punctuality and precipitation at a specific stop, seem to show no apparent pattern.
+delay rate and precipitation at a specific stop, seem to show no apparent pattern.
 
-```{r}
-ggplot(analysis_df, aes(x = delay_rate, y = precip_mm)) +
-  geom_point(alpha = 0.3, color = "steelblue") +
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  theme_minimal() +
-  labs(
-    title = "Correlation between Precipitation and Train Delay Rate",
-    x = "Precipitation (mm)",
-    y = "Delay rate"
-  )
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "precipitation_delay_correlation.png"))
+
+```
+
+The same applies when plotting precipitation against total delay minutes at
+stops instead of the punctuality rate. In the plot below, I have excluded
+stations with excessive amount of total delay minutes (>1000min), which likely
+were caused by external factors.
+
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "precipitation_delaymin_correlation.png"))
+
+```
+
+Analysing hourly correlation values yields no clearer picture. During the second
+half of the day, when precipitation increased, correlation is actually negative.
+
+```{r, echo=FALSE}
+knitr::include_graphics(here("figures", "correlation_hourly.png"))
+
 ```
 
 

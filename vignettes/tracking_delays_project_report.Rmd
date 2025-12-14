@@ -7,16 +7,17 @@ output:
     toc: true
     toc_depth: 3
     toc_float: true
+bibliography: "references.bib"
+citation_package: biblatex
+biblio-style: authoryear
 ---
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(here)
 library(ggplot2)
 library(knitr)
 ```
 # Introduction
-Gives the background, explains the relevance, and motivates the (research) question. The introduction may also motivate the methodological approach, but doesn’t give its details.
-
 Railway operation is affected by a range of environmental factors. In Switzerland,
 these effects are accentuated in autumn, when precipitation increases, temperatures
 fall and many trees drop their leaves. It is common knowledge that this season is
@@ -26,8 +27,8 @@ The script is built to analyse a recent 24h timeframe.
 
 
 # Methods and Data
-First, daily public transport data is obtained from an open data source
-*opentransportdata.swiss*. The raw data contains one data point for every ride
+First, daily public transport data is obtained from opentransportdata.swiss [@geschaftsstelle_systemaufgaben_kundeninformation_sbb_ag_ist-daten_2025]. 
+The raw data contains one data point for every ride
 conducted on that day. E.g. The stop of train service R16 in Biel with planned
 and actual arrival and departure time. Because the dataset also contains 
 non-swiss stops and bus and ferry services, its filtered for to the relevant
@@ -35,18 +36,15 @@ extent first. Then delay on arrival is calculated from planned vs. actual values
 Delays on departure are ignored because it is assumed that they would not be 
 caused by precipitation but rather from human influence. 
 Then the train stations are assigned their geographical coordinates by matching
-the BPUIC number to an open source table containing their location
-*opentransportdata.swiss*. Next, the data is aggregated to show delay rate 
-per stop and per hour. Precipitation data stems from the radar product
-CombiPrecip (CPC) by the Federal Office of Meteorology and Climatology 
-MeteoSwiss. Data is provided as .h5 raster files with a time resolution of 
+the BPUIC number to a table containing their location [@ov-infoch_list_nodate]. 
+Next, the data is aggregated to show delay rate per stop and per hour. Precipitation data stems from the radar product CombiPrecip (CPC) by the Federal Office of Meteorology and Climatology MeteoSwiss [@federal_office_of_meteorology_and_climatology_meteoswiss_precipitation_nodate]. 
+Data is provided as .h5 raster files with a time resolution of 
 10 minutes, containing the precipitation total of the previous 60 minutes. 
 Processing is conducted to match the hourly punctuality data structure. 
 Hourly precipitation total is then extracted at the exact locations of the 
 train stations. Eventually, global and hourly correlation is investigated.
 
 # Results
-
 ## Punctuality
 ```{r, echo=FALSE}
 knitr::include_graphics(here("figures", "13_punctuality_map.png"))
@@ -61,6 +59,7 @@ means all trains were delay. Selecting the stops displays the amount of trains.
 knitr::include_graphics(here("figures", "punctuality_map_all_hours.gif"))
 
 ```
+
 ## Precipitation 
 
 ```{r, echo=FALSE}
@@ -77,7 +76,7 @@ knitr::include_graphics(here("figures", "precipitation_all_hours.gif"))
 
 ```
 
-## Punctuality and Precipitation Synthesis Map
+## Punctuality and Precipitation
 ```{r, echo=FALSE}
 knitr::include_graphics(here("figures", "13_combined_map.png"))
 
@@ -124,17 +123,20 @@ knitr::include_graphics(here("figures", "correlation_hourly.png"))
 ```
 
 
-# Discussion: 
+# Discussion
 The results suggest that precipitation is not *the* single, significant factor
 influencing train punctuality. However, the results should be considered with
 caution. The analysis conducted contains some important shortcomings. Firstly, 
 the time period of 24 hours is too short. By analysing a longer time series, 
 e.g. 5 years, seasonal patterns might be detected. Secondly, precipitation values
 are extracted at the coordinates of the train stops only. Including precipitation
-at the immediate sourounding of a stop might improve the model. Thirdly, train delays can
-arise from a multitude of influences. Adding more environmental values such as
+at the immediate sourounding of a stop might improve the model. Thirdly, train delays can arise from a multitude of influences. Adding more environmental values such as
 type of precipitation, temperature or humidity or correcting for human influence
 could result in a better r2 score. Fourthly, instead of using single stop
 stations, analysing train services along lines (e.g. Zurich - Olten - Bern) 
-could also improve significance of the findings. 
+could also improve significance of the findings. Nezval et al. 
+have found that extreme weather events do have an effect on railway punctuality [@nezval_impact_2024]. However, such a situation was not present for the study conducted here. Results from from Palmquist et al. show that snow and cold temperatures
+and snow did increase train delay on line sections but not at stops [@palmqvist_delays_2017]. Thus, further research still needs to be conducted to
+test the hypthesis.
 
+# References

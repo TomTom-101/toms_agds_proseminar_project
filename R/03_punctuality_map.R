@@ -23,13 +23,14 @@ daily_punct_train_geo <- daily_punct_train_geo %>%
 daily_punct_train_geo <- daily_punct_train_geo %>%
   mutate(hour = hour(ANKUNFTSZEIT))
 
-# Calculate delay rate per stop and per hour*
+# Calculate delay rate and total delay minutes per stop and per hour
 delay_rate_hourly <- daily_punct_train_geo %>%
   group_by(BPUIC, HALTESTELLEN_NAME, hour) %>%
   summarise(
     n_trains = n(),
     n_delayed = sum(punct_cat == "delayed", na.rm = TRUE),
     delay_rate = n_delayed / n_trains,
+    total_delay_min = sum(diff_arr, na.rm = TRUE),  
     .groups = "drop"
   )
 

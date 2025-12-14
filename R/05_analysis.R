@@ -159,7 +159,7 @@ delay_df <- delay_df %>%
   filter(!is.na(precip_mm), !is.na(delay_rate))
 
 
-# Global correlation
+# Global correlation precip and delay rate
 
 cor_all <- cor(
   delay_df$precip_mm,
@@ -205,6 +205,38 @@ ggsave(
   height = 5,
   dpi = 300
 )
+
+# Filter out stations with excessive total delay
+delay_df_filter <- delay_df %>% 
+  filter(total_delay_min < 1000)
+
+# Global correlation precip and delay minutes
+cor_all_2 <- cor(
+  delay_df_filter$precip_mm,
+  delay_df_filter$total_delay_min,
+  use = "complete.obs"
+)
+
+# Scatterplot: precipitation vs total delay minutes
+pmin_corr <- ggplot(delay_df_filter, aes(x = precip_mm, y = total_delay_min)) +
+  geom_point(alpha = 0.25, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(
+    title = "Correlation between Precipitation and Total Delay Minutes",
+    subtitle = paste("Global r =", round(cor_all_2, 3)),
+    x = "Precipitation (mm)",
+    y = "Delay minutes"
+  )
+
+ggsave(
+  "figures/precipitation_delaymin_correlation.png",
+  plot = pmin_corr,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+
 
 # Heatmap
 p_heat <- ggplot(delay_df, aes(x = precip_mm, y = delay_rate)) +

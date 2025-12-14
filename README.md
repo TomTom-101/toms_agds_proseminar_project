@@ -9,14 +9,13 @@ delay metrics are derived and geographically mapped and correlation is analysed
 through simple statistical methods. An existing script for punctuality calculation will be adapted for 
 national data. 
 
-The code segments to perform the punctuality analysis are stored in `R/`. Each segment
-represents a sub-workflow. The segments build on each other and need therefore be executed
-one after the other, 1 through 5. Alternatively, `00_script_consolidation.R` can be
-executed, which consolidates the different sub-workflows and creates all the necessary
-data and environment to display the main results, that are shown in 
-`vignettes/tracking_delays_project_report.Rmd`. Substantial amount of data is
-downloaded and processed and therefore patience is needed for the script to run
-until the end.
+To view just the results, `vignettes/tracking_delays_project_report.Rmd` can be
+displayed without running all the complete analysis script. The code segments 
+to perform the punctuality analysis are stored in `R/`. Each segment represents 
+a sub-workflow. The segments build on each other and need therefore be executed
+one after the other, 1 through 5. Alternatively, `00_script_consolidation.R` can 
+benexecuted. Substantial amount of data is downloaded and processed and 
+therefore patience is needed for the script to run until the end.
 
 
 ## Data
@@ -25,15 +24,15 @@ The following data is obtained from external sources
 
 ### Daily train operation data
 
--   opentransportdata.swiss
+-   https://opendata.swiss/de/dataset/ist-daten-v2
 
 ### Train stop coordinates
 
--   opentransportdata.swiss
+-   https://data.oev-info.ch/explore/dataset/stop-points-today/information/?disjunctive.cantonabbreviation&disjunctive.localityname&disjunctive.businessorganisation&disjunctive.businessorganisationnumber&disjunctive.businessorganisationabbreviationde&disjunctive.businessorganisationdescriptionde&disjunctive.status&disjunctive.verkehrsmittel&disjunctive.isocountrycode&disjunctive.means_of_transport
 
 ### Radar Precipitation data
 
--   Federal Office of Meteorology and Climatology MeteoSwiss
+-   https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-radar-precip?.language=en
 
 
 
@@ -54,6 +53,8 @@ The following data is obtained from external sources
 ├── vignettes/                             <- Contains the full workflow of data read, processing, and visualisation.
 |
 └── R/                                     <- R scripts used in the project, contains one script per sub-workflow
+|
+└── renv/                                  <- contains environment management files
 ```
 
 ## Dependencies

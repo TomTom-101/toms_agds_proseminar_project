@@ -23,7 +23,7 @@ stops <- stops %>%
 
 # Select relevant columns
 stops_selected <- stops %>%
-  select(BPUIC, 'E-Koordinate', 'N-Koordinate', 'Link auf Karte')
+  select(BPUIC, 'E-Koordinate', 'N-Koordinate')
 
 stops_selected <- stops_selected %>%
   mutate(BPUIC = as.integer(BPUIC))

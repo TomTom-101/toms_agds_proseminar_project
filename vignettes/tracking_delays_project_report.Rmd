@@ -53,7 +53,7 @@ knitr::include_graphics(here("figures", "13_punctuality_map.png"))
 
 Hourly punctuality usually shows high regional variability. A delay rate of 0 
 means no trains were delayed during that hour on that stop. A delay rate of 1 
-means all trains were delay.
+means all trains were delayed.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(here("figures", "punctuality_map_all_hours.gif"))

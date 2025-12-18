@@ -53,7 +53,7 @@ knitr::include_graphics(here("figures", "13_punctuality_map.png"))
 
 Hourly punctuality usually shows high regional variability. A delay rate of 0 
 means no trains were delayed during that hour on that stop. A delay rate of 1 
-means all trains were delay. Selecting the stops displays the amount of trains.
+means all trains were delay.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(here("figures", "punctuality_map_all_hours.gif"))
@@ -67,9 +67,7 @@ knitr::include_graphics(here("figures", "13_precipitation.png"))
 
 ```
 
-Hourly precipitation total is display can be explored through an interactive
-map. This allows for a first visual, spatial comparison of precipitation and 
-delay concentration.
+Hourly precipitation shows moderate amounts of volume. 
 
 ```{r, echo=FALSE}
 knitr::include_graphics(here("figures", "precipitation_all_hours.gif"))
